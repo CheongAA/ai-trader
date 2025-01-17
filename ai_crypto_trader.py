@@ -8,6 +8,7 @@ from api.google_news import GoogleNewsAPI
 from api.fear_and_greed_index import FearAndGreedIndex
 from service.TradingSystem import TradingSystem
 from service.UpbitCryptoDataCollector import UpbitCryptoDataCollector
+from service.BithumbCryptoDataCollector import BithumbCryptoDataCollector
 
 
 from utils import save_to_excel
@@ -40,19 +41,25 @@ def main():
     # 객체 생성
     genai.configure(api_key=envConfig['gemini']['api_key'])
     ai_model = genai.GenerativeModel(envConfig['gemini']['model'])
+    fear_and_greed = FearAndGreedIndex()
+    google_news_api = GoogleNewsAPI(api_key=envConfig["serpapi"]['api_key'])
     upbit_data_collector = UpbitCryptoDataCollector(
             symbol=envConfig['symbol'],
             api_secret_key=envConfig['upbit']['api_secret_key'], 
             api_access_key=envConfig['upbit']['api_access_key']
         )
-    fear_and_greed = FearAndGreedIndex()
-    google_news_api = GoogleNewsAPI(api_key=envConfig["serpapi"]['api_key'])
+    bithumb_data_collector = BithumbCryptoDataCollector(
+            symbol=envConfig['symbol'],
+            api_secret_key=envConfig['bithumb']['api_secret_key'], 
+            api_access_key=envConfig['bithumb']['api_access_key']
+        )
+
 
     # 트레이딩 시스템 초기화
     trading_system = TradingSystem(
         symbol=envConfig['symbol'],
         ai_model=ai_model
-        ,data_collector=upbit_data_collector,
+        ,data_collector=bithumb_data_collector,
         fear_and_greed=fear_and_greed,
         goolge_news_api=google_news_api)
 
