@@ -65,12 +65,12 @@ class TradingSystem:
 
                 ### Data Provided:
                 1. **Candles**: Includes OHLC data and the following indicators:
-                - Bollinger Bands (15 periods)
-                - EMA (7, 21, 30 periods)
-                - MACD (8, 17, 9 periods)
-                - RSI (10 periods)
+                - Bollinger Bands
+                - EMA
+                - MACD
+                - RSI
                 - VWAP
-                - ATR (14 periods)
+                - ATR
                 2. **Orderbook**: Current buy/sell orderbook data.
                 3. **Current Price**: The latest market price.
 
