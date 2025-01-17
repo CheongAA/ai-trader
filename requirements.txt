@@ -1,0 +1,6 @@
+python-dotenv
+google-generativeai
+pyupbit
+pybithumb
+ta
+openpyxl
