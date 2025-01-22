@@ -3,11 +3,12 @@ import google.generativeai as genai
 import json
 
 class TradingSystem:
-    def __init__(self, goolge_news_api, fear_and_greed, data_collector ,ai_model,symbol="KRW-BTC"):
+    def __init__(self, goolge_news_api, fear_and_greed, data_collector , image_collector,ai_model,symbol="KRW-BTC"):
         self.symbol = symbol
         self.google_news_api = goolge_news_api
         self.fear_and_greed = fear_and_greed
         self.data_collector = data_collector
+        self.image_collector = image_collector
         self.ai_model = ai_model
 
     def collect_news_data(self, headlines):
@@ -26,6 +27,15 @@ class TradingSystem:
         return {
             'fear_and_greed_index': fear_and_greed_data
         }
+    
+    def collect_chart_image(self, url, chart_id, xpath_list, wait_time):
+        """차트 이미지 수집"""
+        chart_image = self.image_collector.capture_chart(
+            url, chart_id, xpath_list, wait_time
+        )
+        return {
+            'chart_image': chart_image
+        }
         
     def collect_all_data(self, enabled_api = False):
         """모든 데이터 수집"""
@@ -41,7 +51,7 @@ class TradingSystem:
         }
 
         if enabled_api:
-            data['news_data'] = self.collect_news_data()
+            data['news_data'] = self.collect_news_data(self.symbol)
             data['fear_and_greed_data'] = self.collect_fear_and_greed_data()
 
         return data
@@ -81,7 +91,7 @@ class TradingSystem:
                 2. **Momentum**: Analyze RSI and MACD to determine the strength of current trends.
                 3. **Volatility**: Evaluate Bollinger Bands and ATR to gauge market conditions.
                 4. **Volume Analysis**: Use VWAP and orderbook data to assess market participation.
-                5. **Timeframe Consistency**: Check for alignment of signals across daily, 4-hour, and 1-hour candles.
+                5. **Timeframe Consistency**: Check for alignment of signals across candle.
 
                 ---
 

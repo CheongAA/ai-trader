@@ -4,3 +4,4 @@ pyupbit
 pybithumb
 ta
 openpyxl
+selenium

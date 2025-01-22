@@ -9,6 +9,7 @@ from api.fear_and_greed_index import FearAndGreedIndex
 from service.TradingSystem import TradingSystem
 from service.UpbitCryptoDataCollector import UpbitCryptoDataCollector
 from service.BithumbCryptoDataCollector import BithumbCryptoDataCollector
+from service.ChartImageCollector import ChartImageCollector
 
 
 from utils import save_to_excel
@@ -53,7 +54,7 @@ def main():
             api_secret_key=envConfig['bithumb']['api_secret_key'], 
             api_access_key=envConfig['bithumb']['api_access_key']
         )
-
+    image_collector = ChartImageCollector()
 
     # 트레이딩 시스템 초기화
     trading_system = TradingSystem(
@@ -61,15 +62,33 @@ def main():
         ai_model=ai_model
         ,data_collector=bithumb_data_collector,
         fear_and_greed=fear_and_greed,
-        goolge_news_api=google_news_api)
+        goolge_news_api=google_news_api,
+        image_collector=image_collector)
 
     # 데이터 수집
+    url = "https://upbit.com/full_chart?code=CRIX.UPBIT.KRW-"+envConfig['symbol']
+    chart_id = "fullChartiq"
+    period_xpath = '//cq-menu[1]'
+    period_interval_xpath = '//cq-menu[1]//cq-item[contains(., "1시간")]'
+    studies_xpath = '//cq-menu[contains(.,"지표")]'
+    bb_xpath = '//cq-menu[3]//cq-item[contains(., "볼린저 밴드")]'
+
+    image_data = trading_system.collect_chart_image(
+        url= url,
+        chart_id=chart_id,
+        xpath_list=[
+            period_xpath, 
+            period_interval_xpath,
+            studies_xpath, 
+            bb_xpath],
+        wait_time=1
+    )
     data = trading_system.collect_all_data()
 
-    # AI 분석 및 결정
+    # # AI 분석 및 결정
     decision = trading_system.get_ai_decision(data)
     
-    # 거래 실행
+    # # 거래 실행
     trading_system.execute_trade(decision)
 
 if __name__ == "__main__":
