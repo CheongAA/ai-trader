@@ -35,7 +35,7 @@ envConfig = {
         "api_key": os.getenv("GEMINI_API_KEY"),
         "model": "gemini-1.5-flash"
     },
-    'symbol': 'BTC'
+    'symbol': 'etc'.upper()
 }
 
 def main():
@@ -73,23 +73,26 @@ def main():
     studies_xpath = '//cq-menu[contains(.,"지표")]'
     bb_xpath = '//cq-menu[3]//cq-item[contains(., "볼린저 밴드")]'
 
-    image_data = trading_system.collect_chart_image(
+    image_path = trading_system.collect_chart_image(
         url= url,
         chart_id=chart_id,
         xpath_list=[
             period_xpath, 
             period_interval_xpath,
             studies_xpath, 
-            bb_xpath],
+            bb_xpath
+        ],
         wait_time=1
     )
     data = trading_system.collect_all_data()
 
-    # # AI 분석 및 결정
+    # AI 분석 및 결정
     decision = trading_system.get_ai_decision(data)
+    image_decision = trading_system.get_ai_decision_by_image(image_path=image_path)
     
-    # # 거래 실행
+    # 거래 실행
     trading_system.execute_trade(decision)
+    trading_system.execute_trade(image_decision)
 
 if __name__ == "__main__":
     main()

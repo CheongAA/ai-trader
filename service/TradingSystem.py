@@ -1,6 +1,15 @@
 import typing_extensions as typing
 import google.generativeai as genai
 import json
+import PIL.Image
+
+class Decision(typing.TypedDict):
+    decision: str
+    confidence: float
+    current_price: float
+    entry_price: float
+    exit_price: float
+    reason: str
 
 class TradingSystem:
     def __init__(self, goolge_news_api, fear_and_greed, data_collector , image_collector,ai_model,symbol="KRW-BTC"):
@@ -33,9 +42,7 @@ class TradingSystem:
         chart_image = self.image_collector.capture_chart(
             url, chart_id, xpath_list, wait_time
         )
-        return {
-            'chart_image': chart_image
-        }
+        return chart_image
         
     def collect_all_data(self, enabled_api = False):
         """모든 데이터 수집"""
@@ -56,17 +63,45 @@ class TradingSystem:
 
         return data
     
+    def get_ai_decision_by_image(self, image_path):
+        """AI 분석 및 결정"""
+
+        image_file = PIL.Image.open(image_path)
+        prompt = [
+                """
+                You are a professional trading assistant specialized in cryptocurrency trading. Based on the provided image, analyze and make a decision using the following approach:
+
+                ---
+
+                ### Data Provided:
+                1. chart image
+
+                ---
+
+                ### Output Format:
+                Return a JSON object with the following fields:
+                - decision (string): Either `"hold"`, `"buy"`, or `"sell"`.
+                - confidence (float): Confidence level for the decision, ranging from 0.0 to 1.0.
+                - current_price (float): Current market price.
+                - entry_price (float): Suggested optimal entry price for a "buy" signal.
+                - exit_price (float): Suggested optimal exit price for a "sell" signal.
+                - reason (string): A detailed explanation of the decision. Mention the specific indicators used and their significance in Korean.
+
+            """,
+            image_file
+        ]
+        result = self.ai_model.generate_content(prompt,
+            generation_config=genai.GenerationConfig(
+            response_mime_type="application/json", response_schema=Decision
+        ))  
+
+
+        print(result)
+        return json.loads(result.candidates[0].content.parts[0].text) 
     
+
     def get_ai_decision(self, data):
         """AI 분석 및 결정"""
-        class Decision(typing.TypedDict):
-            decision: str
-            confidence: float
-            current_price: float
-            entry_price: float
-            exit_price: float
-            reason: str
-
         prompt = [
             """
                 You are a professional trading assistant specialized in cryptocurrency trading. Based on the provided data and technical indicators, analyze and make a decision using the following approach:
@@ -113,7 +148,7 @@ class TradingSystem:
         response_mime_type="application/json", response_schema=Decision
         ))
         
-        return json.loads(result.candidates[0].content.parts[0].text)
+        return json.dumps(json.loads(result.candidates[0].content.parts[0].text))
     
     def execute_trade(self, decision):
         """거래 실행"""

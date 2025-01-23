@@ -5,3 +5,4 @@ pybithumb
 ta
 openpyxl
 selenium
+image
