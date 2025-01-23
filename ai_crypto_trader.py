@@ -35,7 +35,7 @@ envConfig = {
         "api_key": os.getenv("GEMINI_API_KEY"),
         "model": "gemini-1.5-flash"
     },
-    'symbol': 'etc'.upper()
+    'symbol': 'btc'.upper()
 }
 
 def main():
@@ -87,12 +87,10 @@ def main():
     data = trading_system.collect_all_data()
 
     # AI 분석 및 결정
-    decision = trading_system.get_ai_decision(data)
-    image_decision = trading_system.get_ai_decision_by_image(image_path=image_path)
+    decision = trading_system.get_ai_decision(data, image_data_path=image_path)
     
     # 거래 실행
     trading_system.execute_trade(decision)
-    trading_system.execute_trade(image_decision)
 
 if __name__ == "__main__":
     main()

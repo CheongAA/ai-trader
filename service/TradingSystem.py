@@ -96,11 +96,10 @@ class TradingSystem:
         ))  
 
 
-        print(result)
-        return json.loads(result.candidates[0].content.parts[0].text) 
+        return json.dumps(json.loads(result.candidates[0].content.parts[0].text))
     
 
-    def get_ai_decision(self, data):
+    def get_ai_decision(self, data, image_data_path = None):
         """AI 분석 및 결정"""
         prompt = [
             """
@@ -142,13 +141,18 @@ class TradingSystem:
             """,
             json.dumps(data)
         ]
+
+        if image_data_path is not None :
+            image_file = PIL.Image.open(image_data_path)
+            prompt.append(image_file)
     
+        print(prompt)
         result = self.ai_model.generate_content(prompt,
         generation_config=genai.GenerationConfig(
         response_mime_type="application/json", response_schema=Decision
         ))
         
-        return json.dumps(json.loads(result.candidates[0].content.parts[0].text))
+        return json.loads(result.candidates[0].content.parts[0].text)
     
     def execute_trade(self, decision):
         """거래 실행"""
