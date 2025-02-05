@@ -37,10 +37,10 @@ class TradingSystem:
             'fear_and_greed_index': fear_and_greed_data
         }
     
-    def collect_chart_image(self, url, chart_id, xpath_list, wait_time):
+    def collect_chart_image(self, url, xpath_list, wait_time):
         """차트 이미지 수집"""
         chart_image = self.image_collector.capture_chart(
-            url, chart_id, xpath_list, wait_time
+            url, xpath_list, wait_time
         )
         return chart_image
         

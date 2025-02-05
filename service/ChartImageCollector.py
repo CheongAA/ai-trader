@@ -41,7 +41,7 @@ class ChartImageCollector:
         """웹드라이버 초기화"""
         return webdriver.Chrome(options=self.chrome_options)
     
-    def _generate_filename(self, prefix="upbit_btc_chart", interval="1hour"):
+    def _generate_filename(self, prefix="chart", interval="1hour"):
         """
         파일명 생성
         
@@ -66,13 +66,12 @@ class ChartImageCollector:
         wait = WebDriverWait(driver, timeout)
         return wait.until(EC.element_to_be_clickable((by, value)))
     
-    def capture_chart(self, url, chart_id, xpath_list, wait_time=3):
+    def capture_chart(self, url, xpath_list, wait_time=3):
         """
         차트 캡처
         
         Args:
             url (str): 차트 페이지 URL
-            chart_id (str): 차트의 ID
             xpath_list (str[]): 클릭 액션이 실행되는 xpath 리스트
             wait_time (int): 페이지 로딩 대기 시간 (초)
         
@@ -84,7 +83,6 @@ class ChartImageCollector:
         try:
             # 페이지 로딩
             driver.get(url)
-            self._wait_for_element(driver, By.ID, chart_id)
             time.sleep(wait_time)
             
             # xpath 리스트의 각 요소에 대해 클릭 실행
