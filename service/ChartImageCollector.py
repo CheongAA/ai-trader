@@ -9,7 +9,7 @@ from datetime import datetime
 import os
 
 class ChartImageCollector:
-    def __init__(self, save_dir="screenshot"):
+    def __init__(self, exchange, save_dir="screenshot"):
         """
         차트 이미지 수집기 초기화
         
@@ -17,6 +17,7 @@ class ChartImageCollector:
             save_dir (str): 스크린샷을 저장할 디렉토리 경로
         """
         self.save_dir = save_dir
+        self.exchange = exchange
         self._init_chrome_options()
         self._ensure_save_directory()
         self.driver = self._init_driver()
@@ -66,7 +67,7 @@ class ChartImageCollector:
         wait = WebDriverWait(driver, timeout)
         return wait.until(EC.element_to_be_clickable((by, value)))
     
-    def capture_chart(self, url, xpath_list, wait_time=3):
+    def capture_chart(self, wait_time):
         """
         차트 캡처
         
@@ -82,11 +83,11 @@ class ChartImageCollector:
         
         try:
             # 페이지 로딩
-            driver.get(url)
+            driver.get(self.exchange.get_url())
             time.sleep(wait_time)
             
             # xpath 리스트의 각 요소에 대해 클릭 실행
-            for xpath in xpath_list:
+            for xpath in self.exchange.get_chart_xpath_list():
                 try:
                     element = driver.find_element(By.XPATH, xpath)
                     driver.execute_script("arguments[0].scrollIntoView(true);", element)

@@ -37,14 +37,11 @@ class TradingSystem:
             'fear_and_greed_index': fear_and_greed_data
         }
     
-    def collect_chart_image(self, url, xpath_list, wait_time):
+    def collect_chart_image(self, wait_time = 3):
         """차트 이미지 수집"""
-        chart_image = self.image_collector.capture_chart(
-            url, xpath_list, wait_time
-        )
-        return chart_image
+        return self.image_collector.capture_chart(wait_time)
         
-    def collect_all_data(self, enabled_api = False):
+    def collect_chart_data(self, enabled_api = False):
         """모든 데이터 수집"""
         if self.data_collector is None:
             raise ValueError("DataCollector is not initialized.")
@@ -63,29 +60,24 @@ class TradingSystem:
 
         return data
     
-    def get_ai_decision_by_image(self, image_path):
+    def get_ai_decision_by_image(self):
         """AI 분석 및 결정"""
 
+        image_path = self.collect_chart_image()
         image_file = PIL.Image.open(image_path)
         prompt = [
-                """
-                You are a professional trading assistant specialized in cryptocurrency trading. Based on the provided image, analyze and make a decision using the following approach:
+            """
+                Given a chart image, analyze the data and provide a trading decision based on the following criteria:
 
-                ---
+                Decision (decision): Choose between "hold", "buy", or "sell".
+                Confidence (confidence): Provide a confidence level for the decision, ranging from 0.0 to 1.0.
+                Current Price (current_price): State the current market price of the cryptocurrency.
+                Entry Price (entry_price): If it's a "buy" signal, suggest the optimal entry price.
+                Exit Price (exit_price): If it's a "sell" signal, suggest the optimal exit price.
+                Reason (reason): Provide a detailed explanation for the decision, mentioning specific indicators used (e.g., Moving Averages, RSI, MACD, or any patterns observed in the chart).
+                Important: Please make sure to consider all relevant technical indicators while making the decision.
 
-                ### Data Provided:
-                1. chart image
-
-                ---
-
-                ### Output Format:
-                Return a JSON object with the following fields:
-                - decision (string): Either `"hold"`, `"buy"`, or `"sell"`.
-                - confidence (float): Confidence level for the decision, ranging from 0.0 to 1.0.
-                - current_price (float): Current market price.
-                - entry_price (float): Suggested optimal entry price for a "buy" signal.
-                - exit_price (float): Suggested optimal exit price for a "sell" signal.
-                - reason (string): A detailed explanation of the decision. Mention the specific indicators used and their significance in Korean.
+                Note: While the decision and other values should be in English, please provide the explanation (reason) in Korean.
 
             """,
             image_file
@@ -96,10 +88,10 @@ class TradingSystem:
         ))  
 
 
-        return json.dumps(json.loads(result.candidates[0].content.parts[0].text))
+        return json.loads(result.candidates[0].content.parts[0].text)
     
 
-    def get_ai_decision(self, data, image_data_path = None):
+    def get_ai_decision(self, data):
         """AI 분석 및 결정"""
         prompt = [
             """
@@ -142,17 +134,20 @@ class TradingSystem:
             json.dumps(data)
         ]
 
-        if image_data_path is not None :
-            image_file = PIL.Image.open(image_data_path)
-            prompt.append(image_file)
-    
-        print(prompt)
-        result = self.ai_model.generate_content(prompt,
+        data_result = self.ai_model.generate_content(prompt,
         generation_config=genai.GenerationConfig(
         response_mime_type="application/json", response_schema=Decision
         ))
+        data_decision = json.loads(data_result.candidates[0].content.parts[0].text)
+
+        if self.image_collector is not None :
+            image_decision = self.get_ai_decision_by_image()
+            return {
+                "image_decision": image_decision,
+                "data_decision": data_decision
+            }
         
-        return json.loads(result.candidates[0].content.parts[0].text)
+        return data_decision
     
     def execute_trade(self, decision):
         """거래 실행"""

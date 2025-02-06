@@ -23,9 +23,12 @@ class TechnicalAnalysis:
         df['bollinger_bands_lower'] = bb.bollinger_lband()
         
         # EMA
-        df['ema9'] = EMAIndicator(close=close, window=7).ema_indicator()
-        df['ema12'] = EMAIndicator(close=close, window=21).ema_indicator()
-        df['ema20'] = EMAIndicator(close=close, window=30).ema_indicator()
+        df['ema5'] = EMAIndicator(close=close, window=5).ema_indicator()
+        df['ema7'] = EMAIndicator(close=close, window=7).ema_indicator()
+        df['ema20'] = EMAIndicator(close=close, window=20).ema_indicator()
+        df['ema60'] = EMAIndicator(close=close, window=60).ema_indicator()
+        df['ema122'] = EMAIndicator(close=close, window=122).ema_indicator()
+        df['ema244'] = EMAIndicator(close=close, window=244).ema_indicator()
         
         # MACD
         macd = MACD(close=close, window_slow=26, window_fast=12, window_sign=9)

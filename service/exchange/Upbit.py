@@ -5,6 +5,19 @@ class Upbit:
     def __init__(self, api_access_key=None, api_secret_key=None, symbol="BTC"):
         self.symbol = "KRW-" + symbol
         self.exchange = pyupbit.Upbit(api_access_key, api_secret_key)
+        self.url = "https://upbit.com/full_chart?code=CRIX.UPBIT.KRW-{}".format(symbol)
+        self.xpath_list = [
+            '//cq-menu[1]',
+            '//cq-menu[1]//cq-item[contains(., "1시간")]',
+            '//cq-menu[contains(.,"지표")]',
+            '//cq-menu[3]//cq-item[contains(., "볼린저 밴드")]'
+        ]
+    
+    def get_url(self):
+        return self.url
+    
+    def get_chart_xpath_list(self):
+        return self.xpath_list
     
     def prepare_dataframe(self, df):
         """DataFrame을 JSON 직렬화 가능한 형태로 변환"""

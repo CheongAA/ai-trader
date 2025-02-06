@@ -5,6 +5,14 @@ class Bithumb:
     def __init__(self, api_access_key=None, api_secret_key=None, symbol="BTC"):
         self.symbol = symbol
         self.exchange = pybithumb.Bithumb(api_access_key, api_secret_key)
+        self.url = "https://www.bithumb.com/react/trade/order/{}-KRW".format(symbol)
+        self.xpath_list = []
+
+    def get_url(self):
+        return self.url
+    
+    def get_chart_xpath_list(self):
+        return self.xpath_list
 
     def prepare_dataframe(self, df):
         """DataFrame을 JSON 직렬화 가능한 형태로 변환"""
