@@ -15,7 +15,7 @@ from service.exchange.Bithumb import Bithumb
 from service.exchange.Upbit import Upbit
 from service.exchange.Binance import Binance
 
-
+from prompt import prompt
 from utils import save_to_excel
 
 # 환경 변수 로드
@@ -68,7 +68,7 @@ def main():
             api_secret_key=envConfig['upbit']['api_secret_key'], 
             api_access_key=envConfig['upbit']['api_access_key']
     )
-    chart_collector = ChartDataCollector(exchange_upbit)
+    chart_collector = ChartDataCollector(exchange_bithumb)
     image_collector = ChartImageCollector(exchange_binance)
 
 
@@ -79,11 +79,34 @@ def main():
         data_collector=chart_collector,
         fear_and_greed=fear_and_greed,
         goolge_news_api=google_news_api,
-        image_collector=image_collector)
-    
-    data = trading_system.collect_chart_data(enabled_api=False)
-    decision = trading_system.get_ai_decision(data)
-    trading_system.execute_trade(decision)
+        image_collector=image_collector
+        )
+
+
+    # indicator
+    data = trading_system.collect_chart_data()
+    image_data = trading_system.collect_chart_image()
+    youtube_data = trading_system.collect_youtube_transcript('6flHiM5-n50')
+    fear_and_greed_data = trading_system.collect_fear_and_greed_data()
+    news_data = trading_system.collect_news_data()
+    indicators = [
+        data,
+        youtube_data
+        # fear_and_greed_data,
+        # news_data,
+    ]
+    print(indicators)
+
+    # decision
+    decision = trading_system.get_ai_decision(
+        data=indicators, 
+        image_data=image_data,
+        prompt=prompt.text
+    )
+    print(decision)
+
+    # execute
+    # trading_system.execute_trade(decision)
 
 if __name__ == "__main__":
     main()

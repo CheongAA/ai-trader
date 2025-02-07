@@ -27,19 +27,19 @@ class Bithumb:
         return df.reset_index().to_dict('records')
 
     def get_daily_data(self):
-        df = self.exchange.get_candlestick(self.symbol, chart_intervals="24h").tail(100)
+        df = self.exchange.get_candlestick(self.symbol, chart_intervals="24h").tail(30)
         if df is not None and len(df) > 20:
             df = TechnicalAnalysis.add_indicators(df)
         return self.prepare_dataframe(df)
 
     def get_4h_data(self):
-        df = self.exchange.get_candlestick(self.symbol, chart_intervals="4h").tail(100)
+        df = self.exchange.get_candlestick(self.symbol, chart_intervals="4h").tail(30)
         if df is not None and len(df) > 20:
             df = TechnicalAnalysis.add_indicators(df)
         return self.prepare_dataframe(df)
     
     def get_1h_data(self):
-        df = self.exchange.get_candlestick(self.symbol, chart_intervals="1h").tail(100)
+        df = self.exchange.get_candlestick(self.symbol, chart_intervals="1h").tail(30)
         if df is not None and len(df) > 20:
             df = TechnicalAnalysis.add_indicators(df)
         return self.prepare_dataframe(df)

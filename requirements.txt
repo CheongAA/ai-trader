@@ -6,3 +6,4 @@ ta
 openpyxl
 selenium
 image
+youtube-transcript-api
