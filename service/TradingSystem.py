@@ -4,6 +4,12 @@ from youtube_transcript_api import YouTubeTranscriptApi
 
 import json
 import PIL.Image
+import base64
+from io import BytesIO
+from datetime import datetime
+
+from models import TradeDecision
+from db import TradingDatabase
 
 class Decision(typing.TypedDict):
     decision: str
@@ -14,13 +20,14 @@ class Decision(typing.TypedDict):
     reason: str
 
 class TradingSystem:
-    def __init__(self, goolge_news_api, fear_and_greed, data_collector , image_collector,ai_model,symbol="KRW-BTC"):
+    def __init__(self, goolge_news_api, fear_and_greed, data_collector , image_collector, ai_model, db:TradingDatabase,symbol="KRW-BTC"):
         self.symbol = symbol
         self.google_news_api = goolge_news_api
         self.fear_and_greed = fear_and_greed
         self.data_collector = data_collector
         self.image_collector = image_collector
         self.ai_model = ai_model
+        self.db = db
 
     def collect_news_data(self):
         """구글 뉴스에서 최신 뉴스 헤드라인을 가져오기"""
@@ -50,7 +57,17 @@ class TradingSystem:
         if self.image_collector is None:
             raise ValueError("ImageCollector is not initialized.")
         image_path = self.image_collector.capture_chart(wait_time)
-        return {'chart_image': PIL.Image.open(image_path)}
+        image = PIL.Image.open(image_path)
+
+        # 이미지 Base64 인코딩
+        buffered = BytesIO()
+        image.save(buffered, format="PNG")
+        image_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        
+        return {
+            "mime_type": "image/png",
+            "data": image_base64
+        }
         
     def collect_chart_data(self):
         """모든 데이터 수집"""
@@ -66,13 +83,55 @@ class TradingSystem:
     
     def get_ai_decision(self, prompt, data, image_data = None):
         """AI 분석 및 결정"""
-        prompt_req = [prompt, json.dumps(data), image_data]
-        result = self.ai_model.generate_content(prompt_req,
-        generation_config=genai.GenerationConfig(
-        response_mime_type="application/json", response_schema=Decision
-        ))
+        prompt_req = [prompt, json.dumps(data)]
+
+        if image_data is not None:
+            prompt_req.append({
+                "mime_type": image_data['mime_type'],
+                "data": image_data['data']
+            })
+
+        result = self.ai_model.generate_content(
+            prompt_req,
+            generation_config=genai.GenerationConfig(
+                response_mime_type="application/json",
+                response_schema=Decision,
+            )
+        )
+
+        # 예외 처리: JSON 디코딩 및 데이터 형식 검사
+        try:
+            decision_data = json.loads(result.candidates[0].content.parts[0].text)
+            print(result.candidates[0].content.parts[0].text)
+            
+            # 필수 키 확인
+            required_keys = ['decision', 'reason']
+            if not all(key in decision_data for key in required_keys):
+                raise ValueError("응답 데이터에 필요한 키가 없습니다.")
+
+        except (json.JSONDecodeError, ValueError, KeyError) as e:
+            print("예외 발생:", e)
+            # 디폴트 값 설정
+            decision_data = {
+                'decision': 'HOLD',
+                'reason': '잘못된 응답 데이터 형식',
+            }
+
+        # 결정을 데이터베이스에 저장 (옵셔널 필드는 get()으로 처리)
+        trade_decision = TradeDecision(
+            symbol=self.symbol,
+            decision=decision_data['decision'],
+            reason=decision_data['reason'],
+            confidence=decision_data.get('confidence'),
+            current_price=decision_data.get('current_price'),
+            entry_price=decision_data.get('entry_price'),
+            exit_price=decision_data.get('exit_price'),
+            created_at=datetime.now(),
+        )
+
         
-        return json.loads(result.candidates[0].content.parts[0].text)
+        self.db.save_decision(trade_decision)
+        return decision_data
     
     def execute_trade(self, decision):
         """거래 실행"""

@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 
 import google.generativeai as genai
 
+from db.TradingDatabase import TradingDatabase
+
 from api.google_news import GoogleNewsAPI
 from api.fear_and_greed_index import FearAndGreedIndex
 from service.TradingSystem import TradingSystem
@@ -70,6 +72,7 @@ def main():
     )
     chart_collector = ChartDataCollector(exchange_bithumb)
     image_collector = ChartImageCollector(exchange_binance)
+    db = TradingDatabase(db_path="trading_decisions.db")
 
 
     # trader
@@ -79,7 +82,8 @@ def main():
         data_collector=chart_collector,
         fear_and_greed=fear_and_greed,
         goolge_news_api=google_news_api,
-        image_collector=image_collector
+        image_collector=image_collector,
+        db=db
         )
 
 
@@ -91,7 +95,7 @@ def main():
     news_data = trading_system.collect_news_data()
     indicators = [
         data,
-        youtube_data
+        # youtube_data
         # fear_and_greed_data,
         # news_data,
     ]
@@ -104,6 +108,7 @@ def main():
         prompt=prompt.text
     )
     print(decision)
+    
 
     # execute
     # trading_system.execute_trade(decision)
