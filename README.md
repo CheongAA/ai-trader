@@ -1,3 +1,28 @@
+# .env
+
+```
+UPBIT_ACCESS_KEY=""
+UPBIT_SECRET_KEY=""
+
+BITHUMB_ACCESS_KEY=""
+BITHUMB_SECRET_KEY=""
+
+
+GEMINI_API_KEY=""
+SERPAPI_API_KEY=""
+
+
+```
+
+# run
+
+```
+pip install -r requirements.txt
+
+python -m streamlit run app.py
+
+```
+
 # Bollinger Bands
 
 ## 기본 설정
