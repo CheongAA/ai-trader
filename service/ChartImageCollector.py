@@ -20,7 +20,6 @@ class ChartImageCollector:
         self.exchange = exchange
         self._init_chrome_options()
         self._ensure_save_directory()
-        self.driver = self._init_driver()
     
     def _init_chrome_options(self):
         """Chrome 브라우저 옵션 초기화"""
@@ -79,7 +78,7 @@ class ChartImageCollector:
         Returns:
             str: 저장된 파일 경로
         """
-        driver = self.driver
+        driver = self._init_driver()
         
         try:
             # 페이지 로딩
