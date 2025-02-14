@@ -20,9 +20,9 @@ class Decision(typing.TypedDict):
     reason: str
 
 class TradingSystem:
-    def __init__(self, goolge_news_api, fear_and_greed, data_collector , ai_model, db:TradingDatabase,symbol="KRW-BTC", image_collector = None):
+    def __init__(self, google_news_api, fear_and_greed, data_collector , ai_model, db:TradingDatabase,symbol="KRW-BTC", image_collector = None):
         self.symbol = symbol
-        self.google_news_api = goolge_news_api
+        self.google_news_api = google_news_api
         self.fear_and_greed = fear_and_greed
         self.data_collector = data_collector
         self.image_collector = image_collector
@@ -81,21 +81,16 @@ class TradingSystem:
             'current_price': self.data_collector.get_current_price(),
         }
     
-    def get_ai_decision(self, prompt, data, image_data = None):
+    def get_ai_decision(self, prompt, data):
         """AI 분석 및 결정"""
-        prompt_req = [prompt, json.dumps(data)]
-
-        if image_data is not None:
-            prompt_req.append({
-                "mime_type": image_data['mime_type'],
-                "data": image_data['data']
-            })
+        prompt_req = [prompt, data]
 
         result = self.ai_model.generate_content(
             prompt_req,
             generation_config=genai.GenerationConfig(
                 response_mime_type="application/json",
                 response_schema=Decision,
+                temperature=0.7
             )
         )
 
@@ -108,8 +103,8 @@ class TradingSystem:
             required_keys = ['decision', 'reason']
             if not all(key in decision_data for key in required_keys):
                 raise ValueError("응답 데이터에 필요한 키가 없습니다.")
-
-        except (json.JSONDecodeError, ValueError, KeyError) as e:
+            
+        except Exception as e:
             print("예외 발생:", e)
             # 디폴트 값 설정
             decision_data = {
