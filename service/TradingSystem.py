@@ -4,8 +4,6 @@ from youtube_transcript_api import YouTubeTranscriptApi
 
 import json
 import PIL.Image
-import base64
-from io import BytesIO
 from datetime import datetime
 
 from models import TradeDecision
@@ -57,17 +55,8 @@ class TradingSystem:
         if self.image_collector is None:
             raise ValueError("ImageCollector is not initialized.")
         image_path = self.image_collector.capture_chart(wait_time)
-        image = PIL.Image.open(image_path)
 
-        # 이미지 Base64 인코딩
-        buffered = BytesIO()
-        image.save(buffered, format="PNG")
-        image_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
-        
-        return {
-            "mime_type": "image/png",
-            "data": image_base64
-        }
+        return PIL.Image.open(image_path)
         
     def collect_chart_data(self):
         """모든 데이터 수집"""

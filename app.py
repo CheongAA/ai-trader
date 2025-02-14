@@ -87,28 +87,34 @@ def main():
             limit=10
         )
         DecisionHistory.render_table(decisions)
+
+    # Handle trading decision 
+    if st.button("🔮 Get Trading Decision by image"):
+        with st.spinner("Collecting Data and Making Decision..."):
+            image_data = trader.collect_chart_image()
+            decision = trader.get_ai_decision(
+                prompt=prompt.text,
+                data=image_data
+            )
+            DecisionHistory.render_single_decision(decision)
+            st.rerun()
     
     # Handle trading decision
     if st.button("🔮 Get Trading Decision"):
         with st.spinner("Collecting Data and Making Decision..."):
             data = trader.collect_chart_data()
-            image_data = trader.collect_chart_image()
             youtube_data = trader.collect_youtube_transcript('6flHiM5-n50')
             fear_and_greed_data = trader.collect_fear_and_greed_data()
             # news_data = trader.collect_news_data()
 
             # 데이터를 dict로 묶어서 JSON 직렬화
-            indicators = {
+            indicators = json.dumps({
                 "chart_data": data,
-                "youtube_data": youtube_data,
-                "fear_and_greed_data": fear_and_greed_data,
-                # "news_data": news_data,
-                "image_data": image_data  # image_data도 dict에 포함
-            }
+                # "youtube_data": youtube_data,
+                # "fear_and_greed_data": fear_and_greed_data,
+                # "news_data": news_data
+            })
 
-            # JSON 직렬화
-            indicators = json.dumps(indicators)
-            
             # get ai decision
             decision = trader.get_ai_decision(
                 prompt=prompt.text,
