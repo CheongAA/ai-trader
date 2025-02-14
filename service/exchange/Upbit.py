@@ -33,19 +33,19 @@ class Upbit:
         return df.reset_index().to_dict('records')
 
     def get_daily_data(self):
-        df = pyupbit.get_ohlcv(self.symbol, interval="day", count=30)
+        df = pyupbit.get_ohlcv(self.symbol, interval="day", count=10)
         if df is not None and len(df) > 20:
             df = TechnicalAnalysis.add_indicators(df)
         return self.prepare_dataframe(df)
     
     def get_4h_data(self):
-        df = pyupbit.get_ohlcv(self.symbol, interval="minute240", count=30)
+        df = pyupbit.get_ohlcv(self.symbol, interval="minute240", count=10)
         if df is not None and len(df) > 20:
             df = TechnicalAnalysis.add_indicators(df)
         return self.prepare_dataframe(df)
     
     def get_1h_data(self):
-        df = pyupbit.get_ohlcv(self.symbol, interval="minute60", count=30)
+        df = pyupbit.get_ohlcv(self.symbol, interval="minute60", count=10)
         if df is not None and len(df) > 20:
             df = TechnicalAnalysis.add_indicators(df)
         return self.prepare_dataframe(df)

@@ -7,3 +7,5 @@ openpyxl
 selenium
 image
 youtube-transcript-api
+streamlit
+plotly

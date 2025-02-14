@@ -20,7 +20,7 @@ class Decision(typing.TypedDict):
     reason: str
 
 class TradingSystem:
-    def __init__(self, goolge_news_api, fear_and_greed, data_collector , image_collector, ai_model, db:TradingDatabase,symbol="KRW-BTC"):
+    def __init__(self, goolge_news_api, fear_and_greed, data_collector , ai_model, db:TradingDatabase,symbol="KRW-BTC", image_collector = None):
         self.symbol = symbol
         self.google_news_api = goolge_news_api
         self.fear_and_greed = fear_and_greed
