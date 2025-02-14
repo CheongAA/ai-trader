@@ -72,22 +72,14 @@ class TradingSystem:
     
     def get_ai_decision(self, prompt, data):
         """AI 분석 및 결정"""
-        prompt_req = [prompt, data]
-
-        result = self.ai_model.generate_content(
-            prompt_req,
-            generation_config=genai.GenerationConfig(
-                response_mime_type="application/json",
-                response_schema=Decision,
-                temperature=0.7
-            )
+        decision_data = self.ai_model.generate_content(
+            prompt=prompt,
+            data=data,
+            schema=Decision
         )
 
         # 예외 처리: JSON 디코딩 및 데이터 형식 검사
         try:
-            decision_data = json.loads(result.candidates[0].content.parts[0].text)
-            print(result.candidates[0].content.parts[0].text)
-            
             # 필수 키 확인
             required_keys = ['decision', 'reason']
             if not all(key in decision_data for key in required_keys):

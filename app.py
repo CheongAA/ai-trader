@@ -1,6 +1,5 @@
 import json
 import streamlit as st
-import google.generativeai as genai
 
 from api.fear_and_greed_index import FearAndGreedIndex
 from api.google_news import GoogleNewsAPI
@@ -8,6 +7,8 @@ from api.google_news import GoogleNewsAPI
 from service.exchange.Binance import Binance
 from service.exchange.Bithumb import Bithumb
 from service.exchange.Upbit import Upbit
+
+from service.ai.Gemini import Gemini
 
 from service.ChartImageCollector import ChartImageCollector
 from service.ChartDataCollector import ChartDataCollector
@@ -24,8 +25,7 @@ def initialize_app() -> TradingSystem:
     config = AppConfig.load_config()
 
     # ai
-    genai.configure(api_key=config.gemini.key)
-    ai_model = genai.GenerativeModel(config.gemini.model)
+    gemini = Gemini(key=config.gemini.key, model=config.gemini.model)
 
     # exchange
     binance = Binance(
@@ -63,7 +63,7 @@ def initialize_app() -> TradingSystem:
         fear_and_greed=fear_and_greed,
         image_collector=chart_image_collector,
         data_collector=chart_data_collector,
-        ai_model=ai_model
+        ai_model=gemini
     )
 
     return trading_system
