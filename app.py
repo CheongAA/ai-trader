@@ -65,7 +65,7 @@ def initialize_app() -> TradingSystem:
         fear_and_greed=fear_and_greed,
         image_collector=chart_image_collector,
         data_collector=chart_data_collector,
-        ai_model=gemini
+        ai_model=openai
     )
 
     return trading_system
