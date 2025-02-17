@@ -17,7 +17,9 @@ class AppConfig:
     binance: ExchangeConfig
     bithumb: ExchangeConfig
     upbit: ExchangeConfig
+
     gemini: AiConfig
+    openai: AiConfig
 
     serpapi_key: str
     symbol: str
@@ -41,6 +43,10 @@ class AppConfig:
             gemini=AiConfig(
                 key=os.getenv("GEMINI_API_KEY"),
                 model="gemini-1.5-flash"
+            ),
+            openai=AiConfig(
+                key=os.getenv("OPENAI_API_KEY"),
+                model="gpt-4o"
             ),
             serpapi_key=os.getenv("SERPAPI_API_KEY"),
             symbol='BTC'

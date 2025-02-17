@@ -9,6 +9,7 @@ from service.exchange.Bithumb import Bithumb
 from service.exchange.Upbit import Upbit
 
 from service.ai.Gemini import Gemini
+from service.ai.OpenAI import OpenAI
 
 from service.ChartImageCollector import ChartImageCollector
 from service.ChartDataCollector import ChartDataCollector
@@ -26,6 +27,7 @@ def initialize_app() -> TradingSystem:
 
     # ai
     gemini = Gemini(key=config.gemini.key, model=config.gemini.model)
+    openai = OpenAI(key=config.openai.key, model=config.openai.model)
 
     # exchange
     binance = Binance(

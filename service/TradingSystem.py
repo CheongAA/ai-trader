@@ -1,5 +1,5 @@
 import typing_extensions as typing
-import google.generativeai as genai
+from pydantic import BaseModel
 from youtube_transcript_api import YouTubeTranscriptApi
 
 import json
@@ -9,7 +9,7 @@ from datetime import datetime
 from models import TradeDecision
 from db import TradingDatabase
 
-class Decision(typing.TypedDict):
+class Decision(BaseModel):
     decision: str
     confidence: float
     current_price: float
